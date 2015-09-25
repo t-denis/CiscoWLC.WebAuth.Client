@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+  <PreferenceCategory android:title="Network"
+                      android:key="pref_key_conn">
+    <EditTextPreference android:key="pref_ssid"
+                        android:title="SSID" />
+  </PreferenceCategory>
+  <PreferenceCategory android:title="Login page"
+                      android:key="pref_key_loginpage">
+    <EditTextPreference android:key="pref_loginpage"
+                        android:title="Login page URL"
+                        android:defaultValue="https://1.1.1.1/login.html" />
+    <CheckBoxPreference android:title="Ignore SSL-certificate errors"
+                        android:defaultValue="true"
+                        android:key="pref_ignore_ssl_errors" />
+  </PreferenceCategory>
+  <PreferenceCategory android:title="Cisco Web Authentication"
+                      android:key="pref_key_auth">
+    <EditTextPreference android:key="pref_username"
+                        android:title="Username" />
+    <EditTextPreference android:key="pref_password"
+                        android:title="Password"
+                        android:inputType="textPassword" />
+  </PreferenceCategory>
+</PreferenceScreen>

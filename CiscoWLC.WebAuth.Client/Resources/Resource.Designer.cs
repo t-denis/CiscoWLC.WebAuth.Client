@@ -60,11 +60,11 @@ namespace CiscoWLC.WebAuth.Client
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f060000
-			public const int button = 2131099648;
+			// aapt resource value: 0x7f070000
+			public const int button = 2131165184;
 			
-			// aapt resource value: 0x7f060001
-			public const int settings = 2131099649;
+			// aapt resource value: 0x7f070001
+			public const int settings = 2131165185;
 			
 			static Id()
 			{
@@ -95,8 +95,8 @@ namespace CiscoWLC.WebAuth.Client
 		public partial class Menu
 		{
 			
-			// aapt resource value: 0x7f050000
-			public const int Main = 2131034112;
+			// aapt resource value: 0x7f060000
+			public const int Main = 2131099648;
 			
 			static Menu()
 			{
@@ -111,8 +111,8 @@ namespace CiscoWLC.WebAuth.Client
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7f040000
-			public const int ApplicationName = 2130968576;
+			// aapt resource value: 0x7f050000
+			public const int ApplicationName = 2131034112;
 			
 			static String()
 			{
@@ -120,6 +120,22 @@ namespace CiscoWLC.WebAuth.Client
 			}
 			
 			private String()
+			{
+			}
+		}
+		
+		public partial class Xml
+		{
+			
+			// aapt resource value: 0x7f040000
+			public const int Settings = 2130968576;
+			
+			static Xml()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Xml()
 			{
 			}
 		}

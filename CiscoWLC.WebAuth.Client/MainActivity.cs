@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -31,8 +30,7 @@ namespace CiscoWLC.WebAuth.Client
 
         private void OnButtonClick(object sender, EventArgs e)
         {
-            Logger.Info("Click");
-            Toast.MakeText(this, "Click", ToastLength.Short).Show();
+            StartActivityForResult(typeof(SettingsActivity), 1);
         }
 
         #region Menu
