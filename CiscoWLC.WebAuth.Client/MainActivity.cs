@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Reflection;
 using Android.App;
+using Android.Content;
 using Android.OS;
+using Android.Views;
 using Android.Widget;
 
 namespace CiscoWLC.WebAuth.Client
@@ -8,6 +11,7 @@ namespace CiscoWLC.WebAuth.Client
     [Activity(Label = "CiscoWLC.WebAuth.Client", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity
     {
+        private const int SettingsActivityId = 1;
         private Button _button;
 
         protected override void OnCreate(Bundle bundle)
@@ -17,7 +21,6 @@ namespace CiscoWLC.WebAuth.Client
             _button = FindViewById<Button>(Resource.Id.button);
             _button.Click += OnButtonClick;
         }
-
         
         protected override void OnStart()
         {
@@ -32,6 +35,35 @@ namespace CiscoWLC.WebAuth.Client
             Toast.MakeText(this, "Click", ToastLength.Short).Show();
         }
 
+        #region Menu
+
+        public override bool OnCreateOptionsMenu(IMenu menu)
+        {
+            MenuInflater.Inflate(Resource.Menu.Main, menu);
+            return base.OnCreateOptionsMenu(menu);
+        }
+
+        public override bool OnMenuItemSelected(int featureId, IMenuItem item)
+        {
+            switch (item.ItemId)
+            {
+                case Resource.Id.settings:
+                    StartActivityForResult(typeof (SettingsActivity), SettingsActivityId);
+                    return true;
+            }
+            return base.OnMenuItemSelected(featureId, item);
+        }
+
+        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+        {
+            base.OnActivityResult(requestCode, resultCode, data);
+            if (requestCode == SettingsActivityId)
+            {
+                Toast.MakeText(this, "Settings closed", ToastLength.Short).Show();
+            }
+        }
+
+        #endregion
     }
 }
 
