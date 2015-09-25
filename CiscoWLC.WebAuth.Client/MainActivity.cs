@@ -4,6 +4,7 @@ using Android.Content;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
+using CiscoWLC.WebAuth.Client.Settings;
 
 namespace CiscoWLC.WebAuth.Client
 {
@@ -19,12 +20,14 @@ namespace CiscoWLC.WebAuth.Client
             SetContentView(Resource.Layout.Main);
             _button = FindViewById<Button>(Resource.Id.button);
             _button.Click += OnButtonClick;
+            UpdateButtonText();
         }
         
         protected override void OnStart()
         {
             Logger.Init(Console.WriteLine);
             Logger.Info("Starting");
+            UpdateButtonText();
             base.OnStart();
         }
 
@@ -57,11 +60,24 @@ namespace CiscoWLC.WebAuth.Client
             base.OnActivityResult(requestCode, resultCode, data);
             if (requestCode == SettingsActivityId)
             {
-                Toast.MakeText(this, "Settings closed", ToastLength.Short).Show();
+                UpdateButtonText();
             }
         }
 
         #endregion
+
+        private void UpdateButtonText()
+        {
+            var settings = MainSettings.GetCurrent(this);
+            if (settings.AreValid())
+            {
+                _button.Text = "Connect";
+            }
+            else
+            {
+                _button.Text = "Settings";
+            }
+        }
     }
 }
 
