@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using System.Threading;
+using System.Threading.Tasks;
 using Android.Content;
 using Android.Net.Wifi;
 using Android.Runtime;
@@ -11,7 +11,7 @@ namespace CiscoWLC.WebAuth.Client.Core
 {
     public class WifiConnector
     {
-        public void Connect(Context context, Ssid ssid, OtherSettings settings)
+        public async Task ConnectAsync(Context context, Ssid ssid, OtherSettings settings)
         {
             Logger.Verbose("WifiConnector.Connecting");
 
@@ -32,7 +32,7 @@ namespace CiscoWLC.WebAuth.Client.Core
 
             Logger.Verbose($"Connection to network {ssid} requested");
             
-            WaitUntilConnected(settings);
+            await WaitUntilConnectedAsync(settings);
         }
 
         private static void EnsureWifiEnabled(WifiManager wifiManager)
@@ -92,11 +92,11 @@ namespace CiscoWLC.WebAuth.Client.Core
                 throw new InvalidOperationException($"Can't enable network {network.Ssid}");
         }
 
-        private static void WaitUntilConnected(OtherSettings settings)
+        private static async Task WaitUntilConnectedAsync(OtherSettings settings)
         {
             // TODO: Get notified when network is active instead of sleeping
             if (settings.ConnectTimeout > 0)
-                Thread.Sleep(settings.ConnectTimeout);
+                await Task.Delay(settings.ConnectTimeout);
         }
     }
 }
