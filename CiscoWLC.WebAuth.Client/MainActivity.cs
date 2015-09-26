@@ -20,6 +20,18 @@ namespace CiscoWLC.WebAuth.Client
         private Button _button;
         private bool _isBusy;
 
+        private MainSettings _settings;
+
+        public MainSettings Settings
+        {
+            get
+            {
+                if (_settings == null)
+                    _settings = MainSettings.GetCurrent(this);
+                return _settings;
+            }
+        }
+
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -56,9 +68,7 @@ namespace CiscoWLC.WebAuth.Client
                 case Severity.Debug:
                     break;
                 case Severity.Verbose:
-                    // TODO: Cache logging settings
-                    var settings = MainSettings.GetCurrent(this);
-                    if (settings.OtherSettings.ShowVerboseLoggingToasts)
+                    if (Settings.OtherSettings.ShowVerboseLoggingToasts)
                         ShowToast(message);
                     break;
                 case Severity.Info:
@@ -74,7 +84,7 @@ namespace CiscoWLC.WebAuth.Client
         private async void OnButtonClick(object sender, EventArgs e)
         {
             if (_button.Text == GetString(Resource.String.Settings))
-                StartActivity(typeof (SettingsActivity));
+                StartActivity(typeof(SettingsActivity));
             else
             {
                 if (_isBusy)
@@ -87,7 +97,7 @@ namespace CiscoWLC.WebAuth.Client
                     _isBusy = true;
                     _button.Text = GetString(Resource.String.Busy);
                     Logger.Verbose("Connecting");
-                    var settings = MainSettings.GetCurrent(this);
+                    var settings = Settings;
                     var conManager = new WifiConnector();
                     var networkInfo = new NetworkInfo(settings.ConnectionSettings);
                     conManager.Connect(this, networkInfo, settings.OtherSettings);
@@ -135,18 +145,16 @@ namespace CiscoWLC.WebAuth.Client
 
         private void UpdateActivityState()
         {
-            // TODO: Optimize, called too often
-            var settings = MainSettings.GetCurrent(this);
-            if (settings.OtherSettings.IgnoreSslCertErrors)
+            if (Settings.OtherSettings.IgnoreSslCertErrors)
                 ServicePointManager.ServerCertificateValidationCallback = AllowInvalidSslCertificates;
             else
                 ServicePointManager.ServerCertificateValidationCallback = null;
 
-            _button.Text = GetString(settings.AreValid() 
+            _button.Text = GetString(Settings.AreValid()
                 ? Resource.String.Connect
                 : Resource.String.Settings);
         }
-        
+
         private bool AllowInvalidSslCertificates(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             Logger.Verbose("Accepting SSL Certificate");
@@ -155,6 +163,7 @@ namespace CiscoWLC.WebAuth.Client
 
         public void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key)
         {
+            _settings = MainSettings.GetCurrent(this);
             UpdateActivityState();
         }
     }
