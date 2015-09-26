@@ -49,7 +49,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Logger.cs" />
+    <Compile Include="Core\WifiConnector.cs" />
+    <Compile Include="Core\NetworkInfo.cs" />
+    <Compile Include="Core\NetworkType.cs" />
+    <Compile Include="Logging\Logger.cs" />
+    <Compile Include="Logging\Severity.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -58,6 +62,7 @@
     <Compile Include="Settings\LoginPageSettings.cs" />
     <Compile Include="Settings\MainSettings.cs" />
     <Compile Include="SettingsActivity.cs" />
+    <Compile Include="Settings\OtherSettings.cs" />
     <Compile Include="Settings\SettingsValidator.cs" />
   </ItemGroup>
   <ItemGroup>

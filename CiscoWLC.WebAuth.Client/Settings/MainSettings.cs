@@ -10,6 +10,7 @@ namespace CiscoWLC.WebAuth.Client.Settings
         public ConnectionSettings ConnectionSettings { get; private set; }
         public LoginPageSettings LoginPageSettings { get; private set; }
         public AuthSettings AuthSettings { get; private set; }
+        public OtherSettings OtherSettings { get; private set; }
 
         public static MainSettings GetCurrent(Context context)
         {
@@ -18,7 +19,8 @@ namespace CiscoWLC.WebAuth.Client.Settings
             {
                 AuthSettings = new AuthSettings(sharedPrefs),
                 ConnectionSettings = new ConnectionSettings(sharedPrefs),
-                LoginPageSettings = new LoginPageSettings(sharedPrefs)
+                LoginPageSettings = new LoginPageSettings(sharedPrefs),
+                OtherSettings = new OtherSettings(sharedPrefs)
             };
             return settings;
         }

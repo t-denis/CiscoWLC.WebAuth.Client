@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="ApplicationName">CiscoWLC.WebAuth.Client</string>
+  <string name="ApplicationName">CiscoWLC.WebAuth.Client</string>
+  <string name="Settings">Settings</string>
+  <string name="Connect">Connect</string>
 </resources>

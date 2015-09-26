@@ -9,7 +9,8 @@
                       android:key="pref_key_loginpage">
     <EditTextPreference android:key="pref_loginpage"
                         android:title="Login page URL"
-                        android:defaultValue="https://1.1.1.1/login.html" />
+                        android:defaultValue="https://1.1.1.1/login.html"
+                        android:inputType="textUri" />
     <CheckBoxPreference android:title="Ignore SSL-certificate errors"
                         android:defaultValue="true"
                         android:key="pref_ignore_ssl_errors" />
@@ -21,5 +22,26 @@
     <EditTextPreference android:key="pref_password"
                         android:title="Password"
                         android:inputType="textPassword" />
+  </PreferenceCategory>
+  <PreferenceCategory android:title="Other"
+                      android:key="pref_key_other">
+    <CheckBoxPreference android:title="Recreate network"
+                        android:summary="Delete existing networks with the same SSID"
+                        android:defaultValue="false"
+                        android:key="pref_recreate_networks" />
+    <EditTextPreference android:key="pref_timeout_scan"
+                        android:title="Wifi scan timeout"
+                        android:summary="Timeout after enabling Wifi, ms"
+                        android:defaultValue="3000"
+                        android:inputType="number" />
+    <EditTextPreference android:key="pref_timeout_connect"
+                        android:title="Network connect timeout"
+                        android:summary="Timeout after connecting to Wifi and before using it, ms"
+                        android:defaultValue="0"
+                        android:inputType="number" />
+    <CheckBoxPreference android:title="More toast notifications"
+                        android:summary="Show verbose level logging toasts"
+                        android:defaultValue="false"
+                        android:key="pref_show_verbose_toasts" />
   </PreferenceCategory>
 </PreferenceScreen>
