@@ -11,126 +11,92 @@ namespace CiscoWLC.WebAuth.Client.Core
 {
     public class WifiConnector
     {
-        public void Connect(Context context, NetworkInfo network, OtherSettings settings)
+        public void Connect(Context context, Ssid ssid, OtherSettings settings)
         {
             Logger.Verbose("WifiConnector.Connecting");
 
             var wifiManager = context.GetSystemService(Context.WifiService).JavaCast<WifiManager>();
-            if (!wifiManager.IsWifiEnabled)
+            EnsureWifiEnabled(wifiManager);
+            if (IsConnectedToNetwork(wifiManager, ssid))
             {
-                var wifiEnabled = wifiManager.SetWifiEnabled(true);
-                if (!wifiEnabled)
-                    throw new InvalidOperationException("Can't enable wifi");
-                
-                // TODO: Get notified when scan completed instead of sleeping
-                if (settings.ScanTimeout > 0)
-                    Thread.Sleep(settings.ScanTimeout);
-            }
-            if (IsConnectedToNetwork(wifiManager, network))
-            {
-                Logger.Info($"Already connected to network {network.QuotedSsid}");
+                Logger.Info($"Network {ssid} already connected");
                 return;
             }
+
+            var network = GetConfiguredEnabledNetwork(wifiManager, ssid);
+            EnsureDifferentNetworksNotActive(wifiManager, network);
+            EnsureNetworkReachable(wifiManager, ssid);
+
+            ActivateNetwork(wifiManager, network);
+            Reconnect(wifiManager);
+
+            Logger.Verbose($"Connection to network {ssid} requested");
             
-            wifiManager.Disconnect();
-
-            // TODO: Remove only conflicting networks (same SSID, different settings)
-            if (settings.CreateNetworks && settings.RecreateNetworks)
-                RemoveNetworks(wifiManager, network.QuotedSsid);
-            var wifiConfiguration = GetExistingNetwork(wifiManager, network);
-            if (wifiConfiguration == null)
-            {
-                if (!settings.CreateNetworks)
-                    throw new InvalidOperationException($"Preconfigured network {network.QuotedSsid} not found");
-                
-                // TODO: Check if network is available, otherwise don't create a configuration (maybe except networks with a hidden ssid)
-                wifiConfiguration = CreateWifiConfiguration(network);
-                wifiConfiguration = AddWifiConfiguration(wifiManager, wifiConfiguration);
-            }
-            var enabled = wifiManager.EnableNetwork(wifiConfiguration.NetworkId, true);
-            if (!enabled)
-                throw new InvalidOperationException($"Can't enable network {wifiConfiguration.Ssid}");
-            var reconnected = wifiManager.Reconnect();
-            if (!reconnected)
-                throw new InvalidOperationException($"Can't reconnect to the network {wifiConfiguration.Ssid}");
-
-            Logger.Verbose($"Connection to network {network.QuotedSsid} requested");
-            // TODO: Get notified when network is active instead of sleeping
-            if (settings.ConnectTimeout > 0)
-                Thread.Sleep(settings.ConnectTimeout);
+            WaitUntilConnected(settings);
         }
 
-        private bool IsConnectedToNetwork(WifiManager wifiManager, NetworkInfo network)
+        private static void EnsureWifiEnabled(WifiManager wifiManager)
+        {
+            if (!wifiManager.IsWifiEnabled)
+                throw new InvalidOperationException("Wifi is disabled");
+        }
+
+        private static bool IsConnectedToNetwork(WifiManager wifiManager, Ssid ssid)
         {
             return wifiManager.IsWifiEnabled
                    && wifiManager.ConnectionInfo != null
-                   && wifiManager.ConnectionInfo.SSID == network.QuotedSsid;
+                   && wifiManager.ConnectionInfo.SSID == ssid.Quoted;
         }
 
-        private void RemoveNetworks(WifiManager wifiManager, string ssid)
+        private static void Reconnect(WifiManager wifiManager)
         {
-            var existingNetworks = wifiManager.ConfiguredNetworks
-                .Where(x => x.Ssid == ssid)
-                .ToList();
-            foreach (var config in existingNetworks)
-            {
-                Logger.Verbose($"Removing network {ssid} with id {config.NetworkId}");
-                wifiManager.RemoveNetwork(config.NetworkId);
-            }
+            if (!wifiManager.Reconnect())
+                throw new InvalidOperationException("Reconnection failed");
         }
 
         /// <summary> Get existing matching network </summary>
-        private WifiConfiguration GetExistingNetwork(WifiManager wifiManager, NetworkInfo network)
+        private static WifiConfiguration GetConfiguredEnabledNetwork(WifiManager wifiManager, Ssid ssid)
         {
-            // PreSharedKey is hidden for ConfiguredNetworks
-            // TODO: Check network type (Open/WPA/etc)
-            var existingNetworks = wifiManager.ConfiguredNetworks
-                .Where(x => x.Ssid == network.QuotedSsid);
-            var existingNetwork = existingNetworks.FirstOrDefault();
-            if (existingNetwork != null)
-                Logger.Verbose($"Found existing network {network.QuotedSsid}");
-            else
-                Logger.Verbose($"Existing network {network.QuotedSsid} not found");
+            var existingNetwork = wifiManager.ConfiguredNetworks
+                .FirstOrDefault(x => x.Ssid == ssid.Quoted);
+            Logger.Verbose(existingNetwork != null
+                ? $"Found existing network {ssid}"
+                : $"Existing network {ssid} not found");
+
+            if (existingNetwork == null)
+                throw new InvalidOperationException($"Network {ssid} not configured");
+            if (existingNetwork.StatusField == WifiStatus.Disabled)
+                throw new InvalidOperationException($"Network {ssid} is disabled");
+
             return existingNetwork;
         }
 
-        private WifiConfiguration CreateWifiConfiguration(NetworkInfo network)
+        private static void EnsureDifferentNetworksNotActive(WifiManager wifiManager, WifiConfiguration network)
         {
-            var configuration = new WifiConfiguration
-            {
-                Ssid = network.QuotedSsid
-            };
-            switch (network.NetworkType)
-            {
-                case NetworkType.Open:
-                    configuration.AllowedKeyManagement.Set((int)KeyManagementType.None);
-                    break;
-                case NetworkType.WEP:
-                    configuration.WepKeys[0] = network.QuotedPreSharedKey;
-                    configuration.WepTxKeyIndex = 0;
-                    configuration.AllowedKeyManagement.Set((int)KeyManagementType.None);
-                    configuration.AllowedGroupCiphers.Set((int)GroupCipherType.Wep40);
-                    break;
-                case NetworkType.WPA:
-                    configuration.PreSharedKey = network.QuotedPreSharedKey;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-            Logger.Verbose($"Created {network.NetworkType} network {network.QuotedSsid}");
-            return configuration;
+            var differentActiveNetwork = wifiManager.ConfiguredNetworks
+                .Where(x => x.Ssid != network.Ssid)
+                .FirstOrDefault(x => x.StatusField == WifiStatus.Current);
+            if (differentActiveNetwork != null)
+                throw new InvalidOperationException($"Different network {differentActiveNetwork.Ssid} is active");
         }
 
-        /// <summary> Add wifi configuration to the device </summary>
-        /// <param name="wifiManager"></param>
-        /// <param name="wifiConfiguration">Configuration to add</param>
-        /// <returns>Another instance of WifiConfiguration with different NetworkId</returns>
-        private WifiConfiguration AddWifiConfiguration(WifiManager wifiManager, WifiConfiguration wifiConfiguration)
+        private static void EnsureNetworkReachable(WifiManager wifiManager, Ssid ssid)
         {
-            var networkId = wifiManager.AddNetwork(wifiConfiguration);
-            wifiConfiguration = wifiManager.ConfiguredNetworks.Single(x => x.NetworkId == networkId);
-            Logger.Verbose($"Network {wifiConfiguration.Ssid} added");
-            return wifiConfiguration;
+            if (wifiManager.ScanResults.All(x => x.Ssid != ssid.Original))
+                throw new InvalidOperationException($"Network {ssid} is unreachable");
+        }
+
+        private static void ActivateNetwork(WifiManager wifiManager, WifiConfiguration network)
+        {
+            if (!wifiManager.EnableNetwork(network.NetworkId, true))
+                throw new InvalidOperationException($"Can't enable network {network.Ssid}");
+        }
+
+        private static void WaitUntilConnected(OtherSettings settings)
+        {
+            // TODO: Get notified when network is active instead of sleeping
+            if (settings.ConnectTimeout > 0)
+                Thread.Sleep(settings.ConnectTimeout);
         }
     }
 }

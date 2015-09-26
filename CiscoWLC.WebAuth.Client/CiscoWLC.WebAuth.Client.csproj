@@ -51,9 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\CiscoWebAuthManager.cs" />
+    <Compile Include="Core\Ssid.cs" />
     <Compile Include="Core\WifiConnector.cs" />
-    <Compile Include="Core\NetworkInfo.cs" />
-    <Compile Include="Core\NetworkType.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\Severity.cs" />
     <Compile Include="MainActivity.cs" />

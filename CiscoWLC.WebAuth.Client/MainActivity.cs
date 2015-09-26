@@ -99,8 +99,7 @@ namespace CiscoWLC.WebAuth.Client
                     Logger.Verbose("Connecting");
                     var settings = Settings;
                     var conManager = new WifiConnector();
-                    var networkInfo = new NetworkInfo(settings.ConnectionSettings);
-                    conManager.Connect(this, networkInfo, settings.OtherSettings);
+                    conManager.Connect(this, new Ssid(settings.ConnectionSettings.Ssid), settings.OtherSettings);
 
                     var webAuthManager = new CiscoWebAuthManager();
                     await webAuthManager.LoginAsync(settings.LoginPageSettings, settings.AuthSettings);
