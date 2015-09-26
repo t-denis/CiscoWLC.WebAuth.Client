@@ -52,7 +52,7 @@ namespace CiscoWLC.WebAuth.Client.Core
             if (!reconnected)
                 throw new InvalidOperationException($"Can't reconnect to the network {wifiConfiguration.Ssid}");
 
-            Logger.Info($"Connection to network {network.QuotedSsid} requested");
+            Logger.Verbose($"Connection to network {network.QuotedSsid} requested");
             // TODO: Get notified when network is active instead of sleeping
             if (settings.ConnectTimeout > 0)
                 Thread.Sleep(settings.ConnectTimeout);

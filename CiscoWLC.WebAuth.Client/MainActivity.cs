@@ -61,7 +61,7 @@ namespace CiscoWLC.WebAuth.Client
             }
         }
 
-        private void OnButtonClick(object sender, EventArgs e)
+        private async void OnButtonClick(object sender, EventArgs e)
         {
             if (_button.Text == GetString(Resource.String.Settings))
                 StartActivityForResult(typeof (SettingsActivity), 1);
@@ -80,6 +80,9 @@ namespace CiscoWLC.WebAuth.Client
                     var conManager = new WifiConnector();
                     var networkInfo = new NetworkInfo(settings.ConnectionSettings);
                     conManager.Connect(this, networkInfo, settings.OtherSettings);
+
+                    var webAuthManager = new CiscoWebAuthManager();
+                    await webAuthManager.LoginAsync(settings.LoginPageSettings, settings.AuthSettings);
                 }
                 catch (Exception ex)
                 {

@@ -7,10 +7,8 @@ namespace CiscoWLC.WebAuth.Client.Settings
         internal LoginPageSettings(ISharedPreferences sharedPrefs)
         {
             LoginPageUrl = sharedPrefs.GetString("pref_loginpage", null);
-            IgnoreSslCertErrors = sharedPrefs.GetBoolean("pref_ignore_ssl_errors", true);
         }
 
         public string LoginPageUrl { get; private set; }
-        public bool IgnoreSslCertErrors { get; private set; }
     }
 }

@@ -45,10 +45,12 @@
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\CiscoWebAuthManager.cs" />
     <Compile Include="Core\WifiConnector.cs" />
     <Compile Include="Core\NetworkInfo.cs" />
     <Compile Include="Core\NetworkType.cs" />

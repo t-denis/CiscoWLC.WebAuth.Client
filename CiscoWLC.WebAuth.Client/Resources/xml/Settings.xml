@@ -11,9 +11,6 @@
                         android:title="Login page URL"
                         android:defaultValue="https://1.1.1.1/login.html"
                         android:inputType="textUri" />
-    <CheckBoxPreference android:title="Ignore SSL-certificate errors"
-                        android:defaultValue="true"
-                        android:key="pref_ignore_ssl_errors" />
   </PreferenceCategory>
   <PreferenceCategory android:title="Cisco Web Authentication"
                       android:key="pref_key_auth">
@@ -25,6 +22,10 @@
   </PreferenceCategory>
   <PreferenceCategory android:title="Other"
                       android:key="pref_key_other">
+    <CheckBoxPreference android:title="Ignore SSL-certificate errors"
+                        android:summary="Manual application restart may be required"
+                        android:defaultValue="true"
+                        android:key="pref_ignore_ssl_errors" />
     <CheckBoxPreference android:title="Recreate network"
                         android:summary="Delete existing networks with the same SSID"
                         android:defaultValue="false"
