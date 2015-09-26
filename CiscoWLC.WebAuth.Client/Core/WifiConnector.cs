@@ -13,7 +13,7 @@ namespace CiscoWLC.WebAuth.Client.Core
     {
         public void Connect(Context context, NetworkInfo network, OtherSettings settings)
         {
-            Logger.Info("Connecting...");
+            Logger.Verbose("WifiConnector.Connecting");
 
             var wifiManager = context.GetSystemService(Context.WifiService).JavaCast<WifiManager>();
             if (!wifiManager.IsWifiEnabled)

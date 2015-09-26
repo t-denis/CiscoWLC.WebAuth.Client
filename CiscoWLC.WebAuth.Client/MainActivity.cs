@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Preferences;
 using Android.Views;
 using Android.Widget;
 using CiscoWLC.WebAuth.Client.Core;
@@ -11,11 +15,11 @@ using CiscoWLC.WebAuth.Client.Settings;
 namespace CiscoWLC.WebAuth.Client
 {
     [Activity(Label = "CiscoWLC.WebAuth.Client", MainLauncher = true, Icon = "@drawable/icon")]
-    public class MainActivity : Activity
+    public class MainActivity : Activity, ISharedPreferencesOnSharedPreferenceChangeListener
     {
-        private const int SettingsActivityId = 1;
         private Button _button;
         private bool _isBusy;
+
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -26,14 +30,20 @@ namespace CiscoWLC.WebAuth.Client
 
             _button = FindViewById<Button>(Resource.Id.button);
             _button.Click += OnButtonClick;
-            UpdateButtonText();
+            PreferenceManager.GetDefaultSharedPreferences(this).RegisterOnSharedPreferenceChangeListener(this);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            PreferenceManager.GetDefaultSharedPreferences(this).UnregisterOnSharedPreferenceChangeListener(this);
         }
 
         protected override void OnStart()
         {
-            Logger.Init(LogMessage);
+            UpdateActivityState();
             Logger.Verbose("Starting MainActivity");
-            UpdateButtonText();
             base.OnStart();
         }
 
@@ -64,18 +74,19 @@ namespace CiscoWLC.WebAuth.Client
         private async void OnButtonClick(object sender, EventArgs e)
         {
             if (_button.Text == GetString(Resource.String.Settings))
-                StartActivityForResult(typeof (SettingsActivity), 1);
+                StartActivity(typeof (SettingsActivity));
             else
             {
                 if (_isBusy)
                 {
-                    Logger.Info("Busy...");
+                    ShowToast(GetString(Resource.String.Busy));
                     return;
                 }
                 try
                 {
                     _isBusy = true;
-
+                    _button.Text = GetString(Resource.String.Busy);
+                    Logger.Verbose("Connecting");
                     var settings = MainSettings.GetCurrent(this);
                     var conManager = new WifiConnector();
                     var networkInfo = new NetworkInfo(settings.ConnectionSettings);
@@ -91,6 +102,7 @@ namespace CiscoWLC.WebAuth.Client
                 finally
                 {
                     _isBusy = false;
+                    UpdateActivityState();
                 }
             }
         }
@@ -108,7 +120,7 @@ namespace CiscoWLC.WebAuth.Client
             switch (item.ItemId)
             {
                 case Resource.Id.settings:
-                    StartActivityForResult(typeof (SettingsActivity), SettingsActivityId);
+                    StartActivity(typeof(SettingsActivity));
                     return true;
             }
             return base.OnMenuItemSelected(featureId, item);
@@ -116,33 +128,34 @@ namespace CiscoWLC.WebAuth.Client
 
         #endregion
 
-        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
-        {
-            base.OnActivityResult(requestCode, resultCode, data);
-
-            if (requestCode == SettingsActivityId)
-            {
-                UpdateButtonText();
-                Logger.Info("Settings updated");
-            }
-        }
-
         private void ShowToast(string message)
         {
             Toast.MakeText(this, message, ToastLength.Short).Show();
         }
 
-        private void UpdateButtonText()
+        private void UpdateActivityState()
         {
+            // TODO: Optimize, called too often
             var settings = MainSettings.GetCurrent(this);
-            if (settings.AreValid())
-            {
-                _button.Text = GetString(Resource.String.Connect);
-            }
+            if (settings.OtherSettings.IgnoreSslCertErrors)
+                ServicePointManager.ServerCertificateValidationCallback = AllowInvalidSslCertificates;
             else
-            {
-                _button.Text = GetString(Resource.String.Settings);
-            }
+                ServicePointManager.ServerCertificateValidationCallback = null;
+
+            _button.Text = GetString(settings.AreValid() 
+                ? Resource.String.Connect
+                : Resource.String.Settings);
+        }
+        
+        private bool AllowInvalidSslCertificates(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            Logger.Verbose("Accepting SSL Certificate");
+            return true;
+        }
+
+        public void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key)
+        {
+            UpdateActivityState();
         }
     }
 }

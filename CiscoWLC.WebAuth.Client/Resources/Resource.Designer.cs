@@ -114,6 +114,9 @@ namespace CiscoWLC.WebAuth.Client
 			// aapt resource value: 0x7f050000
 			public const int ApplicationName = 2131034112;
 			
+			// aapt resource value: 0x7f050003
+			public const int Busy = 2131034115;
+			
 			// aapt resource value: 0x7f050002
 			public const int Connect = 2131034114;
 			

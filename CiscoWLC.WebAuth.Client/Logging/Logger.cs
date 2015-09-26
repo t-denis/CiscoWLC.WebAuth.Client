@@ -13,27 +13,35 @@ namespace CiscoWLC.WebAuth.Client.Logging
 
         public static void Error(string message)
         {
-            _logAction(Severity.Error, message);
+            Log(Severity.Error, message);
         }
 
         public static void Warn(string message)
         {
-            _logAction(Severity.Warn, message);
+            Log(Severity.Warn, message);
         }
 
         public static void Info(string message)
         {
-            _logAction(Severity.Info, message);
+            Log(Severity.Info, message);
         }
 
         public static void Verbose(string message)
         {
-            _logAction(Severity.Verbose, message);
+            Log(Severity.Verbose, message);
         }
 
         public static void Debug(string message)
         {
-            _logAction(Severity.Debug, message);
+            Log(Severity.Debug, message);
+        }
+
+        private static void Log(Severity severity, string message)
+        {
+            if (_logAction != null)
+                _logAction(severity, message);
+            else
+                Console.WriteLine($"{severity}: {message}");
         }
     }
 }

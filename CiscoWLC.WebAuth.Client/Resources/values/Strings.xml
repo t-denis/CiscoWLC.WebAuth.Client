@@ -3,4 +3,5 @@
   <string name="ApplicationName">CiscoWLC.WebAuth.Client</string>
   <string name="Settings">Settings</string>
   <string name="Connect">Connect</string>
+  <string name="Busy">Connecting...</string>
 </resources>
