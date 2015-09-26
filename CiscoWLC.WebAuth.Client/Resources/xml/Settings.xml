@@ -31,7 +31,7 @@
                         android:defaultValue="false"
                         android:key="pref_create_networks" />
     <CheckBoxPreference android:title="Recreate network"
-                        android:summary="Delete existing networks with the same SSID"
+                        android:summary="Delete existing networks with the same SSID (only if networks creation is enabled)"
                         android:defaultValue="false"
                         android:key="pref_recreate_networks" />
     <EditTextPreference android:key="pref_timeout_scan"
