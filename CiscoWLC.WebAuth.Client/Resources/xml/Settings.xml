@@ -26,6 +26,10 @@
                         android:summary="Manual application restart may be required"
                         android:defaultValue="true"
                         android:key="pref_ignore_ssl_errors" />
+    <CheckBoxPreference android:title="Can create networks"
+                        android:summary="Otherwise use only existing networks (preconfigured on a device)"
+                        android:defaultValue="false"
+                        android:key="pref_create_networks" />
     <CheckBoxPreference android:title="Recreate network"
                         android:summary="Delete existing networks with the same SSID"
                         android:defaultValue="false"

@@ -35,13 +35,15 @@ namespace CiscoWLC.WebAuth.Client.Core
             wifiManager.Disconnect();
 
             // TODO: Remove only conflicting networks (same SSID, different settings)
-            if (settings.RecreateNetworks)
+            if (settings.CreateNetworks && settings.RecreateNetworks)
                 RemoveNetworks(wifiManager, network.QuotedSsid);
             var wifiConfiguration = GetExistingNetwork(wifiManager, network);
             if (wifiConfiguration == null)
             {
+                if (!settings.CreateNetworks)
+                    throw new InvalidOperationException($"Preconfigured network {network.QuotedSsid} not found");
+                
                 // TODO: Check if network is available, otherwise don't create a configuration (maybe except networks with a hidden ssid)
-
                 wifiConfiguration = CreateWifiConfiguration(network);
                 wifiConfiguration = AddWifiConfiguration(wifiManager, wifiConfiguration);
             }
