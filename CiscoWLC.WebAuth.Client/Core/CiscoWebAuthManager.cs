@@ -24,6 +24,7 @@ namespace CiscoWLC.WebAuth.Client.Core
             using (var client = new HttpClient())
             {
                 var httpResult = await client.PostAsync(loginPageSettings.LoginPageUrl, new FormUrlEncodedContent(data));
+                Logger.Verbose($"{httpResult.StatusCode}: {httpResult.ReasonPhrase}");
                 httpResult.EnsureSuccessStatusCode();
             }
         }

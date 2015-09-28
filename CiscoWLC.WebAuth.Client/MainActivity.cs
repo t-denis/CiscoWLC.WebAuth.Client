@@ -99,13 +99,26 @@ namespace CiscoWLC.WebAuth.Client
                     Logger.Verbose("Connecting");
                     var settings = Settings;
                     var conManager = new WifiConnector();
-                    await conManager.ConnectAsync(this, 
-                        new Ssid(settings.ConnectionSettings.Ssid),
+                    var ssid = new Ssid(settings.ConnectionSettings.Ssid);
+                    var connectionResult = await conManager.ConnectAsync(this, ssid,
                         TimeSpan.FromMilliseconds(settings.OtherSettings.ConnectCheckInterval),
                         TimeSpan.FromMilliseconds(settings.OtherSettings.ConnectTimeout));
+                    if (connectionResult == ConnectionResult.AlreadyConnected)
+                        Logger.Info($"Already connected to {ssid.Quoted}. Authorizing...");
+                    else if (connectionResult == ConnectionResult.Connected)
+                        Logger.Info($"Connected to {ssid.Quoted}. Authorizing...");
+                    else
+                        Logger.Info($"Not yet connected to {ssid.Quoted}. Try increase a connection timeout. Authorizing anyway...");
 
                     var webAuthManager = new CiscoWebAuthManager();
                     await webAuthManager.LoginAsync(settings.LoginPageSettings, settings.AuthSettings);
+                    Logger.Info("Connected");
+                    if (!string.IsNullOrWhiteSpace(settings.OtherSettings.StartUrl))
+                    {
+                        var uri = Android.Net.Uri.Parse(settings.OtherSettings.StartUrl);
+                        var intent = new Intent(Intent.ActionView, uri);
+                        StartActivity(intent);
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -11,7 +11,7 @@ namespace CiscoWLC.WebAuth.Client.Core
 {
     public class WifiConnector
     {
-        public async Task ConnectAsync(Context context, Ssid ssid, TimeSpan checkInterval, TimeSpan timeout)
+        public async Task<ConnectionResult> ConnectAsync(Context context, Ssid ssid, TimeSpan checkInterval, TimeSpan timeout)
         {
             Logger.Verbose("WifiConnector.Connecting");
 
@@ -19,8 +19,8 @@ namespace CiscoWLC.WebAuth.Client.Core
             EnsureWifiEnabled(wifiManager);
             if (IsConnectedToNetwork(wifiManager, ssid))
             {
-                Logger.Info($"Network {ssid} already connected");
-                return;
+                Logger.Verbose($"Network {ssid} already connected");
+                return ConnectionResult.AlreadyConnected;
             }
 
             var network = GetConfiguredNetwork(wifiManager, ssid);
@@ -32,7 +32,11 @@ namespace CiscoWLC.WebAuth.Client.Core
 
             Logger.Verbose($"Connection to network {ssid} requested");
             
-            await WaitUntilConnectedAsync(wifiManager, network, checkInterval, timeout);
+            var result = await WaitUntilConnectedAsync(wifiManager, network, checkInterval, timeout);
+            Logger.Verbose(result == ConnectionResult.Connected
+                ? $"Connected to {ssid.Quoted}"
+                : $"Not yet connected to {ssid.Quoted}. Try increase a connection timeout");
+            return result;
         }
 
         private static void EnsureWifiEnabled(WifiManager wifiManager)
@@ -90,30 +94,46 @@ namespace CiscoWLC.WebAuth.Client.Core
                 throw new InvalidOperationException($"Can't enable network {network.Ssid}");
         }
 
-        private static async Task WaitUntilConnectedAsync(WifiManager wifiManager, WifiConfiguration network, TimeSpan checkInterval, TimeSpan timeout)
+        private static async Task<ConnectionResult> WaitUntilConnectedAsync(WifiManager wifiManager, WifiConfiguration network, TimeSpan checkInterval, TimeSpan timeout)
         {
             // TODO: Get notified when network is active instead of looping and sleeping
 
-            if (timeout == TimeSpan.Zero)
-                return;
-            if (checkInterval == TimeSpan.Zero)
+            if (timeout != TimeSpan.Zero)
             {
-                if (timeout.TotalMilliseconds > 0)
-                    await Task.Delay(timeout);
-            }
-            else
-            {
-                var startTime = DateTime.Now;
-                while (DateTime.Now - startTime < timeout)
+                if (checkInterval == TimeSpan.Zero)
                 {
-                    if (wifiManager.WifiState == WifiState.Enabled
-                        && wifiManager.ConnectionInfo.SSID == network.Ssid
-                        && wifiManager.ConnectionInfo.SupplicantState == SupplicantState.Completed
-                        && wifiManager.DhcpInfo.IpAddress > 0)
-                        return;
-                    await Task.Delay(TimeSpan.FromMilliseconds(100));
+                    if (timeout.TotalMilliseconds > 0)
+                        await Task.Delay(timeout);
+                }
+                else
+                {
+                    var startTime = DateTime.Now;
+                    while (DateTime.Now - startTime < timeout)
+                    {
+                        if (IsCompletelyConnected(wifiManager, network))
+                            return ConnectionResult.Connected;
+                        await Task.Delay(TimeSpan.FromMilliseconds(100));
+                    }
                 }
             }
+            if (IsCompletelyConnected(wifiManager, network))
+                return ConnectionResult.Connected;
+            return ConnectionResult.NotYetConnected;
         }
+
+        private static bool IsCompletelyConnected(WifiManager wifiManager, WifiConfiguration network)
+        {
+            return wifiManager.WifiState == WifiState.Enabled
+                   && wifiManager.ConnectionInfo.SSID == network.Ssid
+                   && wifiManager.ConnectionInfo.SupplicantState == SupplicantState.Completed
+                   && wifiManager.DhcpInfo.IpAddress > 0;
+        }
+    }
+
+    public enum ConnectionResult
+    {
+        AlreadyConnected,
+        Connected,
+        NotYetConnected
     }
 }

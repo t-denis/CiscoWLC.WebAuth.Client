@@ -36,6 +36,12 @@
                         android:summary="Network may become accessible before timeout elapsed. How often check, milliseconds (0 to disable)"
                         android:defaultValue="200"
                         android:inputType="number" />
+    <EditTextPreference android:key="pref_start_url"
+                        android:title="Start URL"
+                        android:summary="URL that will be open in a browser after successful connection (keep empty to disable this feature)"
+                        android:defaultValue="http://www.yandex.ru"
+                        android:inputType="textUri" />
+
     <CheckBoxPreference android:title="More toast notifications"
                         android:summary="Show verbose level logging toasts"
                         android:defaultValue="false"
