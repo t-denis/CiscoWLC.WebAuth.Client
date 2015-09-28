@@ -22,7 +22,7 @@ namespace CiscoWLC.WebAuth.Client.Core
                 return;
             }
 
-            var network = GetConfiguredEnabledNetwork(wifiManager, ssid);
+            var network = GetConfiguredNetwork(wifiManager, ssid);
             EnsureDifferentNetworksNotActive(wifiManager, network);
             EnsureNetworkReachable(wifiManager, ssid);
 
@@ -54,7 +54,7 @@ namespace CiscoWLC.WebAuth.Client.Core
         }
 
         /// <summary> Get existing matching network </summary>
-        private static WifiConfiguration GetConfiguredEnabledNetwork(WifiManager wifiManager, Ssid ssid)
+        private static WifiConfiguration GetConfiguredNetwork(WifiManager wifiManager, Ssid ssid)
         {
             var existingNetwork = wifiManager.ConfiguredNetworks
                 .FirstOrDefault(x => x.Ssid == ssid.Quoted);
@@ -64,9 +64,7 @@ namespace CiscoWLC.WebAuth.Client.Core
 
             if (existingNetwork == null)
                 throw new InvalidOperationException($"Network {ssid} not configured");
-            if (existingNetwork.StatusField == WifiStatus.Disabled)
-                throw new InvalidOperationException($"Network {ssid} is disabled");
-
+            
             return existingNetwork;
         }
 
