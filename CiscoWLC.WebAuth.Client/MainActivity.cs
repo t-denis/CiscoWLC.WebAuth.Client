@@ -101,6 +101,7 @@ namespace CiscoWLC.WebAuth.Client
                     var conManager = new WifiConnector();
                     await conManager.ConnectAsync(this, 
                         new Ssid(settings.ConnectionSettings.Ssid),
+                        TimeSpan.FromMilliseconds(settings.OtherSettings.ConnectCheckInterval),
                         TimeSpan.FromMilliseconds(settings.OtherSettings.ConnectTimeout));
 
                     var webAuthManager = new CiscoWebAuthManager();

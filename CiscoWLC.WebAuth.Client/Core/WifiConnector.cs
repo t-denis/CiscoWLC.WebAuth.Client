@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Net;
 using Android.Net.Wifi;
 using Android.Runtime;
 using CiscoWLC.WebAuth.Client.Logging;
@@ -10,7 +11,7 @@ namespace CiscoWLC.WebAuth.Client.Core
 {
     public class WifiConnector
     {
-        public async Task ConnectAsync(Context context, Ssid ssid, TimeSpan timeout)
+        public async Task ConnectAsync(Context context, Ssid ssid, TimeSpan checkInterval, TimeSpan timeout)
         {
             Logger.Verbose("WifiConnector.Connecting");
 
@@ -31,7 +32,7 @@ namespace CiscoWLC.WebAuth.Client.Core
 
             Logger.Verbose($"Connection to network {ssid} requested");
             
-            await WaitUntilConnectedAsync(timeout);
+            await WaitUntilConnectedAsync(wifiManager, network, checkInterval, timeout);
         }
 
         private static void EnsureWifiEnabled(WifiManager wifiManager)
@@ -89,11 +90,30 @@ namespace CiscoWLC.WebAuth.Client.Core
                 throw new InvalidOperationException($"Can't enable network {network.Ssid}");
         }
 
-        private static async Task WaitUntilConnectedAsync(TimeSpan timeout)
+        private static async Task WaitUntilConnectedAsync(WifiManager wifiManager, WifiConfiguration network, TimeSpan checkInterval, TimeSpan timeout)
         {
-            // TODO: Get notified when network is active instead of sleeping
-            if (timeout.TotalMilliseconds > 0)
-                await Task.Delay(timeout);
+            // TODO: Get notified when network is active instead of looping and sleeping
+
+            if (timeout == TimeSpan.Zero)
+                return;
+            if (checkInterval == TimeSpan.Zero)
+            {
+                if (timeout.TotalMilliseconds > 0)
+                    await Task.Delay(timeout);
+            }
+            else
+            {
+                var startTime = DateTime.Now;
+                while (DateTime.Now - startTime < timeout)
+                {
+                    if (wifiManager.WifiState == WifiState.Enabled
+                        && wifiManager.ConnectionInfo.SSID == network.Ssid
+                        && wifiManager.ConnectionInfo.SupplicantState == SupplicantState.Completed
+                        && wifiManager.DhcpInfo.IpAddress > 0)
+                        return;
+                    await Task.Delay(TimeSpan.FromMilliseconds(100));
+                }
+            }
         }
     }
 }
