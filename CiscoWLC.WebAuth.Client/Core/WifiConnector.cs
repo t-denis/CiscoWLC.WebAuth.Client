@@ -19,7 +19,7 @@ namespace CiscoWLC.WebAuth.Client.Core
             EnsureWifiEnabled(wifiManager);
             if (IsConnectedToNetwork(wifiManager, ssid))
             {
-                Logger.Verbose($"Network {ssid} already connected");
+                Logger.Info($"Network {ssid} already connected");
                 return ConnectionResult.AlreadyConnected;
             }
 
@@ -33,7 +33,7 @@ namespace CiscoWLC.WebAuth.Client.Core
             Logger.Verbose($"Connection to network {ssid} requested");
             
             var result = await WaitUntilConnectedAsync(wifiManager, network, checkInterval, timeout);
-            Logger.Verbose(result == ConnectionResult.Connected
+            Logger.Info(result == ConnectionResult.Connected
                 ? $"Connected to {ssid.Quoted}"
                 : $"Not yet connected to {ssid.Quoted}. Try increase a connection timeout");
             return result;

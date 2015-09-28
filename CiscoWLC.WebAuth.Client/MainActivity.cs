@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
@@ -42,43 +43,50 @@ namespace CiscoWLC.WebAuth.Client
 
             _button = FindViewById<Button>(Resource.Id.button);
             _button.Click += OnButtonClick;
-            PreferenceManager.GetDefaultSharedPreferences(this).RegisterOnSharedPreferenceChangeListener(this);
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-
-            PreferenceManager.GetDefaultSharedPreferences(this).UnregisterOnSharedPreferenceChangeListener(this);
         }
 
         protected override void OnStart()
         {
+            PreferenceManager.GetDefaultSharedPreferences(this).RegisterOnSharedPreferenceChangeListener(this);
+
             UpdateActivityState();
             Logger.Verbose("Starting MainActivity");
             base.OnStart();
+        }
+
+        protected override void OnStop()
+        {
+            PreferenceManager.GetDefaultSharedPreferences(this).UnregisterOnSharedPreferenceChangeListener(this);
+            Logger.Verbose("Stopping MainActivity");
+            base.OnStop();
         }
 
         private void LogMessage(Severity severity, string message)
         {
             Console.WriteLine($"{severity}: {message}");
 
+            var allowedToastLevels = new ToastLevel[] { };
+
+            var toastLevel = Settings.OtherSettings.ToastLevel;
             switch (severity)
             {
                 case Severity.Debug:
                     break;
                 case Severity.Verbose:
-                    if (Settings.OtherSettings.ShowVerboseLoggingToasts)
-                        ShowToast(message);
+                    allowedToastLevels = new[] { ToastLevel.Verbose };
                     break;
                 case Severity.Info:
+                    allowedToastLevels = new[] { ToastLevel.Info, ToastLevel.Verbose };
+                    break;
                 case Severity.Warn:
                 case Severity.Error:
-                    ShowToast(message);
+                    allowedToastLevels = new[] { ToastLevel.Info, ToastLevel.Verbose, ToastLevel.WarningsErrorsAndConnected };
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(severity), severity, null);
             }
+            if (allowedToastLevels.Contains(toastLevel))
+                ShowToast(message);
         }
 
         private async void OnButtonClick(object sender, EventArgs e)
@@ -100,25 +108,16 @@ namespace CiscoWLC.WebAuth.Client
                     var settings = Settings;
                     var conManager = new WifiConnector();
                     var ssid = new Ssid(settings.ConnectionSettings.Ssid);
-                    var connectionResult = await conManager.ConnectAsync(this, ssid,
+                    await conManager.ConnectAsync(this, ssid,
                         TimeSpan.FromMilliseconds(settings.OtherSettings.ConnectCheckInterval),
                         TimeSpan.FromMilliseconds(settings.OtherSettings.ConnectTimeout));
-                    if (connectionResult == ConnectionResult.AlreadyConnected)
-                        Logger.Info($"Already connected to {ssid.Quoted}. Authorizing...");
-                    else if (connectionResult == ConnectionResult.Connected)
-                        Logger.Info($"Connected to {ssid.Quoted}. Authorizing...");
-                    else
-                        Logger.Info($"Not yet connected to {ssid.Quoted}. Try increase a connection timeout. Authorizing anyway...");
-
+                    
                     var webAuthManager = new CiscoWebAuthManager();
                     await webAuthManager.LoginAsync(settings.LoginPageSettings, settings.AuthSettings);
-                    Logger.Info("Connected");
-                    if (!string.IsNullOrWhiteSpace(settings.OtherSettings.StartUrl))
-                    {
-                        var uri = Android.Net.Uri.Parse(settings.OtherSettings.StartUrl);
-                        var intent = new Intent(Intent.ActionView, uri);
-                        StartActivity(intent);
-                    }
+                    if (settings.OtherSettings.ToastLevel == ToastLevel.WarningsErrorsAndConnected)
+                        ShowToast("Connected");
+
+                    OpenWebBrowserIfRequired(settings);
                 }
                 catch (Exception ex)
                 {
@@ -129,6 +128,16 @@ namespace CiscoWLC.WebAuth.Client
                     _isBusy = false;
                     UpdateActivityState();
                 }
+            }
+        }
+
+        private void OpenWebBrowserIfRequired(MainSettings settings)
+        {
+            if (!string.IsNullOrWhiteSpace(settings.OtherSettings.StartUrl))
+            {
+                var uri = Android.Net.Uri.Parse(settings.OtherSettings.StartUrl);
+                var intent = new Intent(Intent.ActionView, uri);
+                StartActivity(intent);
             }
         }
 
@@ -158,6 +167,23 @@ namespace CiscoWLC.WebAuth.Client
             Toast.MakeText(this, message, ToastLength.Short).Show();
         }
 
+        private bool AllowInvalidSslCertificates(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            Logger.Verbose("Accepting SSL Certificate");
+            return true;
+        }
+
+        public void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key)
+        {
+            UpdateSettingsAndActivityState();
+        }
+
+        private void UpdateSettingsAndActivityState()
+        {
+            _settings = MainSettings.GetCurrent(this);
+            UpdateActivityState();
+        }
+
         private void UpdateActivityState()
         {
             if (Settings.OtherSettings.IgnoreSslCertErrors)
@@ -170,17 +196,6 @@ namespace CiscoWLC.WebAuth.Client
                 : Resource.String.Settings);
         }
 
-        private bool AllowInvalidSslCertificates(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-        {
-            Logger.Verbose("Accepting SSL Certificate");
-            return true;
-        }
-
-        public void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key)
-        {
-            _settings = MainSettings.GetCurrent(this);
-            UpdateActivityState();
-        }
     }
 }
 

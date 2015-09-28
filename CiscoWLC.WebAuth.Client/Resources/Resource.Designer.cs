@@ -28,6 +28,25 @@ namespace CiscoWLC.WebAuth.Client
 		{
 		}
 		
+		public partial class Array
+		{
+			
+			// aapt resource value: 0x7f050000
+			public const int toastLevelNames = 2131034112;
+			
+			// aapt resource value: 0x7f050001
+			public const int toastLevelValues = 2131034113;
+			
+			static Array()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Array()
+			{
+			}
+		}
+		
 		public partial class Attribute
 		{
 			
@@ -60,11 +79,11 @@ namespace CiscoWLC.WebAuth.Client
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f070000
-			public const int button = 2131165184;
+			// aapt resource value: 0x7f080000
+			public const int button = 2131230720;
 			
-			// aapt resource value: 0x7f070001
-			public const int settings = 2131165185;
+			// aapt resource value: 0x7f080001
+			public const int settings = 2131230721;
 			
 			static Id()
 			{
@@ -95,8 +114,8 @@ namespace CiscoWLC.WebAuth.Client
 		public partial class Menu
 		{
 			
-			// aapt resource value: 0x7f060000
-			public const int Main = 2131099648;
+			// aapt resource value: 0x7f070000
+			public const int Main = 2131165184;
 			
 			static Menu()
 			{
@@ -111,17 +130,17 @@ namespace CiscoWLC.WebAuth.Client
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7f050000
-			public const int ApplicationName = 2131034112;
+			// aapt resource value: 0x7f060000
+			public const int ApplicationName = 2131099648;
 			
-			// aapt resource value: 0x7f050003
-			public const int Busy = 2131034115;
+			// aapt resource value: 0x7f060003
+			public const int Busy = 2131099651;
 			
-			// aapt resource value: 0x7f050002
-			public const int Connect = 2131034114;
+			// aapt resource value: 0x7f060002
+			public const int Connect = 2131099650;
 			
-			// aapt resource value: 0x7f050001
-			public const int Settings = 2131034113;
+			// aapt resource value: 0x7f060001
+			public const int Settings = 2131099649;
 			
 			static String()
 			{

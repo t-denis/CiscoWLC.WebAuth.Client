@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  <string-array name="toastLevelNames">
+    <item>None</item>
+    <item>Errors, warnings and \'Connected\' toast</item>
+    <item>\'Info\' level toasts and above</item>
+    <item>\'Verbose\' level toasts and above</item>
+  </string-array>
+
+  <string-array name="toastLevelValues">
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+    <item>4</item>
+  </string-array>
+</resources>

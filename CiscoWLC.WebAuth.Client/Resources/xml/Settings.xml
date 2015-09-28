@@ -26,6 +26,17 @@
                         android:summary="Manual application restart may be required"
                         android:defaultValue="true"
                         android:key="pref_ignore_ssl_errors" />
+    <EditTextPreference android:key="pref_start_url"
+                        android:title="Start URL"
+                        android:summary="URL that will be open in a browser after successful connection (keep empty to disable this feature)"
+                        android:defaultValue="http://www.yandex.ru"
+                        android:inputType="textUri" />
+    <ListPreference android:title="Toast notifications"
+                    android:summary="Select toast notifications level"
+                    android:key="pref_toasts_level"
+                    android:defaultValue="2"
+                    android:entries="@array/toastLevelNames"
+                    android:entryValues="@array/toastLevelValues" />
     <EditTextPreference android:key="pref_timeout_connect"
                         android:title="Network connect timeout"
                         android:summary="Timeout after connecting to Wifi and before using it, milliseconds (0 to disable)"
@@ -33,18 +44,8 @@
                         android:inputType="number" />
     <EditTextPreference android:key="pref_interval_check_connect"
                         android:title="Network accessibility check interval"
-                        android:summary="Network may become accessible before timeout elapsed. How often check, milliseconds (0 to disable)"
+                        android:summary="Network may become accessible before timeout elapsed. Set how often the accessibility will be checked, milliseconds (0 to disable)"
                         android:defaultValue="200"
                         android:inputType="number" />
-    <EditTextPreference android:key="pref_start_url"
-                        android:title="Start URL"
-                        android:summary="URL that will be open in a browser after successful connection (keep empty to disable this feature)"
-                        android:defaultValue="http://www.yandex.ru"
-                        android:inputType="textUri" />
-
-    <CheckBoxPreference android:title="More toast notifications"
-                        android:summary="Show verbose level logging toasts"
-                        android:defaultValue="false"
-                        android:key="pref_show_verbose_toasts" />
   </PreferenceCategory>
 </PreferenceScreen>
