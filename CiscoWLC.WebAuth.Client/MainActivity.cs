@@ -62,14 +62,12 @@ namespace CiscoWLC.WebAuth.Client
                     _button.Text = GetString(Resource.String.Busy);
                     Logger.Verbose("Connecting");
                     var settings = _settings;
-                    var conManager = new WifiConnector();
                     var ssid = new Ssid(settings.ConnectionSettings.Ssid);
-                    await conManager.ConnectAsync(this, ssid,
+                    await WifiConnector.ConnectAsync(this, ssid,
                         TimeSpan.FromMilliseconds(settings.OtherSettings.ConnectCheckInterval),
                         TimeSpan.FromMilliseconds(settings.OtherSettings.ConnectTimeout));
                     
-                    var webAuthManager = new CiscoWebAuthManager();
-                    await webAuthManager.LoginAsync(settings.LoginPageSettings, settings.AuthSettings);
+                    await CiscoWebAuthManager.LoginAsync(settings.LoginPageSettings, settings.AuthSettings);
                     if (settings.OtherSettings.ToastLevel == ToastLevel.WarningsErrorsAndConnected)
                         ShowToast("Connected");
 

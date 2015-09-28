@@ -6,9 +6,9 @@ using CiscoWLC.WebAuth.Client.Settings;
 
 namespace CiscoWLC.WebAuth.Client.Core
 {
-    public class CiscoWebAuthManager
+    public static class CiscoWebAuthManager
     {
-        public async Task LoginAsync(LoginPageSettings loginPageSettings, AuthSettings authSettings)
+        public static async Task LoginAsync(LoginPageSettings loginPageSettings, AuthSettings authSettings)
         {
             Logger.Verbose("Posting login form");
 

@@ -9,9 +9,9 @@ using CiscoWLC.WebAuth.Client.Logging;
 
 namespace CiscoWLC.WebAuth.Client.Core
 {
-    public class WifiConnector
+    public static class WifiConnector
     {
-        public async Task<ConnectionResult> ConnectAsync(Context context, Ssid ssid, TimeSpan checkInterval, TimeSpan timeout)
+        public static async Task<ConnectionResult> ConnectAsync(Context context, Ssid ssid, TimeSpan checkInterval, TimeSpan timeout)
         {
             Logger.Verbose("WifiConnector.Connecting");
 
