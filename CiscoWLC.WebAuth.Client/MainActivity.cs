@@ -68,8 +68,8 @@ namespace CiscoWLC.WebAuth.Client
                         TimeSpan.FromMilliseconds(settings.OtherSettings.ConnectTimeout));
                     
                     await CiscoWebAuthManager.LoginAsync(settings.LoginPageSettings, settings.AuthSettings);
-                    if (settings.OtherSettings.ToastLevel == ToastLevel.WarningsErrorsAndConnected)
-                        ShowToast("Connected");
+                    if (settings.OtherSettings.ToastLevel != ToastLevel.None)
+                        ShowToast("Done");
 
                     OpenWebBrowserIfRequired(settings);
                 }

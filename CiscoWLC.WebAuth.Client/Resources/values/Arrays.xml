@@ -2,7 +2,7 @@
 <resources>
   <string-array name="toastLevelNames">
     <item>None</item>
-    <item>Errors, warnings and \'Connected\' toast</item>
+    <item>Errors, warnings and \'Done\' toast</item>
     <item>\'Info\' level toasts and above</item>
     <item>\'Verbose\' level toasts and above</item>
   </string-array>
