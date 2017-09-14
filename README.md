@@ -1,6 +1,6 @@
 # CiscoWLC.WebAuth.Client
 
-A pet project that helps to connect a mobile device to a wireless network protected by Web Authentication on a Cisco Wireless LAN Controller.
+A pet project (proof-of-concept) that helps to connect a mobile device to a wireless network protected by Web Authentication on a Cisco Wireless LAN Controller.
 Web Auth described [here](http://www.cisco.com/c/en/us/support/docs/wireless/5500-series-wireless-controllers/108501-webauth-tshoot.html).
 
 Notes:
